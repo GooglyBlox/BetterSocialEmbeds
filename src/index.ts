@@ -1,4 +1,3 @@
-import { storage } from "@vendetta/plugin";
 import { findByProps } from "@vendetta/metro";
 import { before } from "@vendetta/patcher";
 import Settings from "./ui/pages/Settings";
