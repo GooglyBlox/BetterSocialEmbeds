@@ -1,12 +1,10 @@
-import { logger } from "@vendetta";
-import Settings from "./Settings";
+import instagramPatch from "./patches/sendMessage";
 
 export default {
-    onLoad: () => {
-        logger.log("Hello world!");
-    },
-    onUnload: () => {
-        logger.log("Goodbye, world.");
-    },
-    settings: Settings,
-}
+   onLoad: () => {
+      instagramPatch();
+   },
+   onUnload: () => {
+      // Add any necessary cleanup logic here
+   }
+};
