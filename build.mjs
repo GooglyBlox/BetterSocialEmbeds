@@ -1,84 +1,84 @@
+import { readFile, writeFile, readdir } from "fs/promises";
+import { extname } from "path";
 import { createHash } from "crypto";
-import { readdir, readFile, writeFile } from "fs/promises";
 
-import commonjs from "@rollup/plugin-commonjs";
-import nodeResolve from "@rollup/plugin-node-resolve";
 import { rollup } from "rollup";
 import esbuild from "rollup-plugin-esbuild";
-import { swc } from "rollup-plugin-swc3";
+import commonjs from "@rollup/plugin-commonjs";
+import nodeResolve from "@rollup/plugin-node-resolve";
+import swc from "@swc/core";
+
+const extensions = [".js", ".jsx", ".mjs", ".ts", ".tsx", ".cts", ".mts"];
 
 /** @type import("rollup").InputPluginOption */
 const plugins = [
     nodeResolve(),
     commonjs(),
-    swc({
-        jsc: { target: undefined },
-        env: {
-            targets: "supports es6",
-            exclude: [
-                "transform-async-generator-functions",
-                "transform-exponentiation-operator",
-                "transform-nullish-coalescing-operator",
-                "transform-object-rest-spread",
-                "transform-optional-chaining"
-            ],
-            inlude: [
-                "transform-arrow-functions",
-                "transform-block-scoping",
-                "transform-classes"
-            ]
-        }
-    }),
-    esbuild({ minify: true, target: "hermes0.12.0" })
+    {
+        name: "swc",
+        async transform(code, id) {
+            const ext = extname(id);
+            if (!extensions.includes(ext)) return null;
+
+            const ts = ext.includes("ts");
+            const tsx = ts ? ext.endsWith("x") : undefined;
+            const jsx = !ts ? ext.endsWith("x") : undefined;
+
+            const result = await swc.transform(code, {
+                filename: id,
+                jsc: {
+                    externalHelpers: true,
+                    parser: {
+                        syntax: ts ? "typescript" : "ecmascript",
+                        tsx,
+                        jsx,
+                    },
+                },
+                env: {
+                    targets: "defaults",
+                    include: ["transform-classes", "transform-arrow-functions"],
+                },
+            });
+            return result.code;
+        },
+    },
+    esbuild({ minify: true }),
 ];
 
-for (const plugDir of await readdir("./plugins", { withFileTypes: true })) {
-    if (plugDir.isFile()) continue;
+const manifest = JSON.parse(await readFile(`./manifest.json`));
+const outPath = `./dist/index.js`;
 
-    let manifest;
-    try {
-        manifest = JSON.parse(await readFile(`./plugins/${plugDir.name}/manifest.json`));
-        if (!manifest.main) {
-            console.warn(`The manifest of ${manifest.name} (./plugins/${plugDir.name}) does not contain an entrypoint. See: https://plugindocs.nexpid.xyz/guides/manifest`);
-            continue;
-        }
-    } catch (e) {
-        console.error(`Plugin at ./plugins/${plugDir.name} does not have a valid manifest. See: https://plugindocs.nexpid.xyz/guides/manifest\n`, e);
-        continue;
-    }
+try {
+    const bundle = await rollup({
+        input: `./${manifest.main}`,
+        onwarn: () => { },
+        plugins,
+    });
 
-    const outPath = `./dist/${plugDir.name}/index.js`;
+    await bundle.write({
+        file: outPath,
+        globals(id) {
+            if (id.startsWith("@vendetta"))
+                return id.substring(1).replace(/\//g, ".");
+            const map = {
+                react: "window.React",
+            };
 
-    try {
-        const bundle = await rollup({
-            input: `./plugins/${plugDir.name}/${manifest.main}`,
-            onwarn: () => {},
-            plugins
-        });
+            return map[id] || null;
+        },
+        format: "iife",
+        compact: true,
+        exports: "named",
+    });
+    await bundle.close();
 
-        await bundle.write({
-            file: outPath,
-            globals(id) {
-                if (id.startsWith("@vendetta")) return id.substring(1).replace(/\//g, ".");
-                const map = {
-                    react: "window.React"
-                };
+    const toHash = await readFile(outPath);
+    manifest.hash = createHash("sha256").update(toHash).digest("hex");
+    manifest.main = "index.js";
+    await writeFile(`./dist/manifest.json`, JSON.stringify(manifest));
 
-                return map[id] || null;
-            },
-            format: "iife",
-            compact: true,
-            exports: "named"
-        });
-        await bundle.close();
-
-        const toHash = await readFile(outPath);
-        manifest.hash = createHash("sha256").update(toHash).digest("hex");
-        manifest.main = "index.js";
-        await writeFile(`./dist/${plugDir.name}/manifest.json`, JSON.stringify(manifest));
-
-        console.log(`Successfully built ${manifest.name} (./plugins/${plugDir.name})!`);
-    } catch (e) {
-        console.error(`Failed to build plugin: ${manifest.name} (./plugins/${plugDir.name})\n`, e);
-    }
+    console.log(`Successfully built ${manifest.name}!`);
+} catch (e) {
+    console.error("Failed to build plugin...", e);
+    process.exit(1);
 }
