@@ -7,50 +7,56 @@ const Messages = findByProps("sendMessage", "receiveMessage");
 
 let unpatch;
 
+const replacements = [
+  {
+    id: "convertInstagram",
+    regex: /https:\/\/www\.instagram\.com\/(p\/|reel\/)[^ ]+/g,
+    replacement: "https://www.ddinstagram.com/$1",
+  },
+  {
+    id: "convertTwitter",
+    regex: /https:\/\/twitter\.com\/[^ ]+/g,
+    replacement: "https://fxtwitter.com/",
+  },
+  {
+    id: "convertX",
+    regex: /https:\/\/x\.com\/[^ ]+/g,
+    replacement: "https://fixupx.com/",
+  },
+  {
+    id: "convertTiktok",
+    regex: /https:\/\/(?:www\.)?tiktok\.com\/[^ ]+/g,
+    replacement: "https://tnktok.com/",
+  },
+  {
+    id: "convertBsky",
+    regex: /https:\/\/bsky\.app\//g,
+    replacement: "https://bsyy.app/",
+  },
+  {
+    id: "convertThreads",
+    regex: /https:\/\/(www\.)?threads\.net\//g,
+    replacement: "https://www.vxthreads.net/",
+  },
+  {
+    id: "convertReddit",
+    regex: /https:\/\/(www\.|new\.)?reddit\.com\//g,
+    replacement: "https://www.rxddit.com/",
+  },
+];
+
 export default {
   onLoad: () => {
     unpatch = before("sendMessage", Messages, (args) => {
-      const content = args[1].content as string;
+      let content = args[1].content as string;
 
-      if (storage.instagramEnabled) {
-        const instagramRegex = /https:\/\/www\.instagram\.com\/(p\/|reel\/)[^ ]+/g;
-        if (instagramRegex.test(content)) {
-          args[1].content = content.replace(
-            instagramRegex,
-            (match) => match.replace("https://www.instagram.com", "https://www.ddinstagram.com")
-          );
+      for (const { id, regex, replacement } of replacements) {
+        if (storage[id]) {
+          content = content.replace(regex, replacement);
         }
       }
 
-      if (storage.twitterEnabled) {
-        const twitterRegex = /https:\/\/twitter\.com\/[^ ]+/g;
-        if (twitterRegex.test(content)) {
-          args[1].content = content.replace(
-            twitterRegex,
-            (match) => match.replace("https://twitter.com", "https://fxtwitter.com")
-          );
-        }
-      }
-
-      if (storage.xEnabled) {
-        const xRegex = /https:\/\/x\.com\/[^ ]+/g;
-        if (xRegex.test(content)) {
-          args[1].content = content.replace(
-            xRegex,
-            (match) => match.replace("https://x.com", "https://fixupx.com")
-          );
-        }
-      }
-
-      if (storage.tiktokEnabled) {
-        const tiktokRegex = /https:\/\/(?:www\.)?tiktok\.com\/[^ ]+/g;
-        if (tiktokRegex.test(content)) {
-          args[1].content = content.replace(
-            tiktokRegex,
-            (match) => match.replace(/https:\/\/(?:www\.)?tiktok\.com/, "https://tnktok.com")
-          );
-        }
-      }
+      args[1].content = content;
     });
   },
   onUnload: () => {

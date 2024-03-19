@@ -8,28 +8,46 @@ const { FormRow, FormSwitch, FormSection, FormDivider } = Forms;
 
 const switches = [
   {
-    id: "instagramEnabled",
+    id: "convertInstagram",
     default: true,
     label: "Enable BetterInstagramEmbeds",
     subLabel: "Replace Instagram embeds with ddinstagram embeds",
   },
   {
-    id: "twitterEnabled",
+    id: "convertTwitter",
     default: true,
     label: "Enable BetterTwitterEmbeds",
     subLabel: "Replace Twitter embeds with fxtwitter embeds",
   },
   {
-    id: "xEnabled",
+    id: "convertX",
     default: true,
     label: "Enable BetterXEmbeds",
     subLabel: "Replace X embeds with fixupx embeds",
   },
   {
-    id: "tiktokEnabled",
+    id: "convertTiktok",
     default: true,
     label: "Enable BetterTikTokEmbeds",
     subLabel: "Replace TikTok embeds with tnktok embeds",
+  },
+  {
+    id: "convertBsky",
+    default: true,
+    label: "Enable BetterBskyEmbeds",
+    subLabel: "Replace Bsky embeds with bsyy embeds",
+  },
+  {
+    id: "convertThreads",
+    default: true,
+    label: "Enable BetterThreadsEmbeds",
+    subLabel: "Replace Threads embeds with vxthreads embeds",
+  },
+  {
+    id: "convertReddit",
+    default: true,
+    label: "Enable BetterRedditEmbeds",
+    subLabel: "Replace Reddit embeds with rxddit embeds",
   },
 ];
 
