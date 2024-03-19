@@ -1,6 +1,6 @@
 import { findByProps } from "@vendetta/metro";
 import { before } from "@vendetta/patcher";
-import Settings from "./ui/pages/Settings";
+import Settings from "./Settings";
 
 const Messages = findByProps("sendMessage", "receiveMessage");
 
