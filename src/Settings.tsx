@@ -1,32 +1,10 @@
-import { constants, React, stylesheet, ReactNative as RN } from "@vendetta/metro/common";
+import { React } from "@vendetta/metro/common";
 import { useProxy } from "@vendetta/storage";
 import { storage } from "@vendetta/plugin";
 import { General, Forms } from "@vendetta/ui/components";
-import { semanticColors } from "@vendetta/ui";
 
 const { ScrollView, View } = General;
 const { FormRow, FormSwitch, FormSection, FormDivider } = Forms;
-
-const styles = stylesheet.createThemedStyleSheet({
-  text: {
-    color: semanticColors.HEADER_SECONDARY,
-    paddingLeft: "5.5%",
-    paddingRight: 10,
-    marginBottom: 10,
-    letterSpacing: 0.25,
-    fontFamily: constants.Fonts.PRIMARY_BOLD,
-    fontSize: 16
-  },
-  subText: {
-    color: semanticColors.TEXT_POSITIVE,
-    paddingLeft: "6%",
-    paddingRight: 10,
-    marginBottom: 10,
-    letterSpacing: 0.25,
-    fontFamily: constants.Fonts.DISPLAY_NORMAL,
-    fontSize: 12
-  }
-});
 
 const switches = [
   {
