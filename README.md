@@ -1,5 +1,4 @@
-# Vendetta Plugin Template
-[Vendetta](https://github.com/vendetta-mod/Vendetta)/[Revenge](https://github.com/revenge-mod/Revenge) plugin for improving a multitude of social link embeds.
+## [Vendetta](https://github.com/vendetta-mod/Vendetta)/[Revenge](https://github.com/revenge-mod/Revenge) plugin for improving a multitude of social link embeds.
 
 ### Currently composed of:
 - [Twitter/X](https://github.com/FixTweet/FxTwitter)
