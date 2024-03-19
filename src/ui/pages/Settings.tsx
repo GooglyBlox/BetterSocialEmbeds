@@ -13,7 +13,7 @@ export default () => {
                 label="Enable BetterInstagramEmbeds"
                 subLabel="Replace Instagram embeds with ddinstagram embeds"
                 value={storage.enabled}
-                onValueChange={(value) => {
+                onValueChange={(value: any) => {
                     storage.enabled = value;
                 }}
             />
